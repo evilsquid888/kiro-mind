@@ -14,9 +14,9 @@ You are the people profiler for an obsidian-mind vault. Given a list of people (
 ## Input
 
 A list of people to profile. Can be:
-- Slack user IDs: `U049UVCHU95, U07AEB2C29Z`
-- Names: `"Bradley Wilson", "Srinivasan Dodda"`
-- Mixed: `U049UVCHU95 (Bradley Wilson), Tora Onaca`
+- Slack user IDs: `U0EXAMPLE1, U0EXAMPLE2`
+- Names: `"Alice Chen", "Bob Martinez"`
+- Mixed: `U0EXAMPLE1 (Alice Chen), Bob Martinez`
 
 ## Process
 

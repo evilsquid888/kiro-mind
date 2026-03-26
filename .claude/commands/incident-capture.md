@@ -55,9 +55,9 @@ quarter: QN-YYYY
 description: "~150 chars"
 project: <relevant project>
 status: active
-irp: IRP-XXXX
+ticket: TICKET-XXXX
 severity: high/medium/low
-role: <Brenno's role>
+role: <your role>
 tags:
   - work-note
   - incident
@@ -71,7 +71,7 @@ Sections:
 - **Timeline** — full detailed table with timestamps
 - **Impact** — users affected, business impact
 - **Involved Personnel** — with wikilinks to person notes
-- **Notes** — key actions by Brenno, analysis
+- **Notes** — key actions by the user, analysis
 - **Analysis** — what this means strategically (pattern, visibility, competencies)
 - **Related** — wikilinks to all related notes, competencies
 
@@ -95,15 +95,15 @@ For existing people notes:
 
 ### 7. Prepare IRP Draft (if applicable)
 
-If Brenno is or may become the post-mortem manager:
-- Check the IRP template at `reference/Incident Response Process.md`
-- Create `work/incidents/IRP-XXXX Post-Mortem Draft.md` following the Lifecycle template
+If you are or may become the post-mortem manager:
+- Check the post-mortem template at `reference/Incident Response Process.md`
+- Create `work/incidents/TICKET-XXXX Post-Mortem Draft.md` following your org's post-mortem template
 - Include: Executive Summary, Narrative Timeline (4-column), 5 Whys analysis, Action Items table
 
 ### 8. Offer Next Steps
 
 After capturing, suggest:
-- "Want me to prepare the Jira IRP fields?" (Points of Time, Impact, RCA)
+- "Want me to prepare the incident ticket fields?" (Points of Time, Impact, RCA)
 - "Want me to draft a message for the incident channel?"
 - "Want me to create an FE/iOS root cause analysis document?"
 - "Should I run `/vault-audit` to verify everything links properly?"

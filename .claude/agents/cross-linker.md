@@ -34,8 +34,8 @@ Glob all linkable notes and build a lookup:
 For each note being checked:
 - Read the full content.
 - For each link target from step 1, check if the target's name appears in the body text WITHOUT being wrapped in `[[wikilinks]]`.
-- Example: if the body says "Steffen shared the dashboard" but doesn't have `[[Steffen Matthischke]]`, that's a missing link.
-- Be smart about partial matches: "Steffen" should match "Steffen Matthischke", but "the" should not match "Theo".
+- Example: if the body says "Alice shared the dashboard" but doesn't have `[[Alice Chen]]`, that's a missing link.
+- Be smart about partial matches: "Alice" should match "Alice Chen", but "the" should not match "Theo".
 
 ### 3. Check Bidirectional Links
 

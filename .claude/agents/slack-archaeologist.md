@@ -13,9 +13,9 @@ You are the Slack archaeologist for an obsidian-mind vault. Given one or more Sl
 ## Input
 
 One or more Slack URLs:
-- Channel: `https://traderepublic.slack.com/archives/C0EXAMPLE1`
-- Thread: `https://traderepublic.slack.com/archives/C0EXAMPLE1/p1234567890`
-- DM: `https://traderepublic.slack.com/archives/D0EXAMPLE1`
+- Channel: `https://yourcompany.slack.com/archives/C0EXAMPLE1`
+- Thread: `https://yourcompany.slack.com/archives/C0EXAMPLE1/p1234567890`
+- DM: `https://yourcompany.slack.com/archives/D0EXAMPLE1`
 
 ## Process
 

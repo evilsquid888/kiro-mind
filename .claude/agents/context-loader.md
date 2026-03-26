@@ -14,10 +14,10 @@ You are the context loader for an obsidian-mind vault. Given a topic (person, pr
 ## Input
 
 A topic to load context for:
-- Person: "Tora Onaca", "Bradley Wilson"
-- Project: "New Passcode Introduction", "KYC V2"
-- Incident: "IntroCarousel", "IRP-1022"
-- Team: "Customer Platform", "Onboarding"
+- Person: "Alice Chen", "Bob Martinez"
+- Project: "Auth Refactor", "Project Alpha"
+- Incident: "Login Screen Outage", "INC-1234"
+- Team: "Platform Team", "Growth Team"
 - Concept: "ReactiveSwift error handling", "performance reviews"
 
 ## Process

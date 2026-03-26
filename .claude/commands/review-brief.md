@@ -26,7 +26,7 @@ Read these vault sources:
 - `perf/h1-2026/H1 2026 Review Brief.md` (or current private brief) — full context
 - `perf/Brag Doc.md` — quarterly highlights
 - `perf/brag/Q*.md` — quarterly detail notes for the period
-- `perf/evidence/Brenno PRs - *.md` — PR data
+- `perf/evidence/Your PRs - *.md` — PR data
 - `work/*.md` — project notes for the period
 - `perf/competencies/*.md` — competency definitions
 - Previous review notes for baseline comparison
@@ -38,11 +38,11 @@ Read these vault sources:
 - Include: The Arc (narrative), Impact at a Glance (table), Impact Details (per project), Competency Highlights (with baselines), Documentation Trail
 - Replace technical terms: "deadlock" → "timing conflict", "data race" → "concurrency issue", etc.
 - No wikilinks — use plain text or markdown links to external resources
-- Include all Confluence, Jira, GitHub, Sentry, Slack references
+- Include all Confluence, Jira, GitHub, error tracking, Slack references
 
 **For peer audience:**
 - Can be more technical but still PO-friendly (peers write reviews that go to manager)
-- Organize by project (matches Success Board structure)
+- Organize by project (matches your org's review tool structure)
 - Include "Other things worth mentioning" for non-project work
 - Casual tone — "jog your memory", "no pressure to cover everything"
 - No competency section — that's for the manager
@@ -62,8 +62,8 @@ Read these vault sources:
 
 ## Important
 
-- NEVER include: Dimi references, Jagriti details, 1:1 talking points, peer selection strategy, personal strategic notes in shared versions
+- NEVER include: sensitive interpersonal details, 1:1 talking points, peer selection strategy, personal strategic notes in shared versions
 - Always maintain a private version with full context
 - When updating, update BOTH private + shared versions
-- Lucas version: no wikilinks, PO language, professional formatting
+- Manager version: no wikilinks, PO language, professional formatting
 - Peer version: project-focused, same PO-friendly language
