@@ -78,13 +78,11 @@ You: "wrap up"
 
 ## ⚙️ How It Works
 
-The vault is organized around a **graph, not folders**. Folders group by purpose (where to browse), links group by meaning (how to discover). Every note links to related notes — people, decisions, competencies, projects — building a knowledge graph that compounds over time.
+**Folders group by purpose. Links group by meaning.** A note lives in one folder (its home) but links to many notes (its context). Claude maintains this graph — linking work notes to people, decisions, and competencies automatically. When review season arrives, the backlinks on each competency note are already the evidence trail. A note without links is a bug.
 
-Claude maintains this graph. When you create a work note, it links to the people involved, the decisions it produced, and the competencies it demonstrates. When review season arrives, you read the backlinks on each competency note and the evidence is already there.
+**Two memory systems** keep context across sessions. Claude Code's own memory (`~/.claude/`) stores session preferences and quick recall. The vault's memory system (`brain/Memories.md` + topic notes) stores linked knowledge that benefits from Obsidian's graph — backlinks, search, and browsing. Short-term goes to Claude Code. Long-term goes to the vault.
 
-### The Operating Manual
-
-`CLAUDE.md` defines how Claude navigates the vault: where to put things, how to link, what to do at the start and end of every session. It includes an atomicity rule ("does this cover multiple distinct concepts that could be separate nodes?"), a linking contract ("a note without links is a bug"), and a dual memory system separating Claude Code's session memory from the vault's linked knowledge.
+**Sessions have a designed lifecycle.** The `SessionStart` hook auto-injects your North Star goals, active projects, recent changes, open tasks, and the full vault file listing — Claude starts every session with context, not a blank slate. At the end, say "wrap up" and Claude runs `/wrap-up` — verifying notes, updating indexes, and spotting uncaptured wins. The 285-line `CLAUDE.md` governs everything in between: where to file things, how to link, when to split a note, what to do with decisions and incidents.
 
 ### Hooks
 
