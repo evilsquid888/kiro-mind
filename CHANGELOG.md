@@ -1,5 +1,21 @@
 # Changelog
 
+## v3.1 — 2026-03-27
+
+### Added
+- Vault-first memory system — all project memories live in `brain/` (git-tracked), `MEMORY.md` becomes an index-only pointer
+- `/self-review` command — guided self-assessment workflow with strategic calibration, fact-checking, and character limit validation
+- `/review-peer` command — peer review writer with visibility classification, tone rules, and quality checks
+- `review-fact-checker` subagent — verifies every claim in a review draft against vault sources
+- `charcount.sh` utility script — counts characters in markdown sections for review tools with character limits
+- `.claude/memory-template.md` — template users copy to `~/.claude/` to wire up vault-first memory
+
+### Changed
+- CLAUDE.md: "Two Memory Systems" replaced with "Memory System" (vault-first rule, setup instructions)
+- CLAUDE.md: Rules section updated to enforce vault-first memory (never create files in `~/.claude/`)
+- README: updated memory description, command/agent counts, added new commands and subagent
+- `brain/Skills.md`: added new commands, subagent, and updated review cycle workflow
+
 ## v3 — 2026-03-26
 
 ### Added
