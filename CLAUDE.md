@@ -32,6 +32,7 @@ Defined in `.claude/commands/`. See [[Skills]] for full documentation.
 | `/self-review` | Write self-assessment for review tool -- projects, competencies, principles |
 | `/review-peer` | Write peer review -- projects, principles, performance summary |
 | `/vault-audit` | Audit indexes, links, orphans, stale context |
+| `/vault-upgrade` | Import content from an existing vault into this obsidian-mind instance |
 | `/project-archive` | Move completed project from active/ to archive/, update indexes |
 
 ## Vault Structure
@@ -39,6 +40,8 @@ Defined in `.claude/commands/`. See [[Skills]] for full documentation.
 | Folder | Purpose | Key Files |
 |--------|---------|-----------|
 | `Home.md` | **Vault entry point** -- embedded Base views, quick links | Open this first |
+| `vault-manifest.json` | **Template metadata** -- version, infrastructure vs user content boundaries, frontmatter schemas, version fingerprints | Used by `/vault-upgrade` for migration |
+| `CHANGELOG.md` | **Version history** -- tracks template releases (v1--v3.3) with what changed | Reference for upgrade paths |
 | `bases/` | **All Bases centralized** -- dynamic views for navigation | `Work Dashboard`, `Incidents`, `People Directory`, `1-1 History`, `Review Evidence`, `Competency Map`, `Templates` |
 | `work/` | Work notes index | `Index.md` (detailed MOC) |
 | `work/active/` | **Current projects only** (1-3 files) | Move here when starting, move to archive when done |
@@ -57,8 +60,8 @@ Defined in `.claude/commands/`. See [[Skills]] for full documentation.
 | `reference/` | Codebase knowledge, architecture maps | Flow docs, architecture docs |
 | `thinking/` | Scratchpad for drafts and reasoning | Named `YYYY-MM-DD-topic.md` |
 | `templates/` | Obsidian templates | `Work Note.md`, `Decision Record.md`, etc. |
-| `.claude/commands/` | 14 slash commands | See command table above |
-| `.claude/agents/` | 8 subagents | See subagents table below |
+| `.claude/commands/` | 15 slash commands | See command table above |
+| `.claude/agents/` | 9 subagents | See subagents table below |
 | `.claude/scripts/` | Hook scripts | `session-start.sh`, `classify-message.py`, `validate-write.py`, `pre-compact.sh` |
 | `.claude/skills/` | Obsidian + QMD skills | Loaded automatically via Skill tool |
 
@@ -143,7 +146,7 @@ Use `thinking/` for drafts, reasoning, and analysis before writing final notes. 
    - Claude operational context -- `brain/`
    - Codebase knowledge -- `reference/`
    - Drafts -- `thinking/`
-   - Vault root: only `Home.md` and `CLAUDE.md`.
+   - Vault root: `Home.md`, `CLAUDE.md`, `vault-manifest.json`, `CHANGELOG.md`, `CONTRIBUTING.md`, `README.md`, `LICENSE`, `.gitignore`. No user notes at root.
 4. **Name files descriptively.** Use the note title as filename.
 
 ### Note Types
@@ -154,7 +157,7 @@ Use `thinking/` for drafts, reasoning, and analysis before writing final notes. 
 | Incident | `work/incidents/` | Ticket number or descriptive title | Context, Root Cause, Timeline, Impact, Analysis, Related |
 | 1:1 note | `work/1-1/` | `<Person> YYYY-MM-DD.md` | Key Takeaways, Action Items, Quotes, What to Watch, Related |
 | PR analysis | `perf/evidence/` | `<Person> PRs - <Period>.md` | PR Count, Projects, Quality, Growth, Full Table |
-| Review brief | `perf/<cycle>/` | `H1 2026 Review Brief.md` | Arc, Impact, Competencies, Documentation Trail |
+| Review brief | `perf/<cycle>/` | `<Cycle> Review Brief.md` | Arc, Impact, Competencies, Documentation Trail |
 | Person note | `org/people/` | Full name | Role & Team, Relationship, Key Moments, Notes |
 | Team note | `org/teams/` | Team name | Members, Scope, Interactions |
 | Competency | `perf/competencies/` | Competency name | Definition, level criteria, Evidence (via backlinks) |
@@ -231,7 +234,7 @@ Use tags in frontmatter (not inline):
 - **Index**: `index`, `moc`
 - **Status** (frontmatter field): `active`, `completed`, `archived`, `proposed`, `accepted`, `deprecated`
 - **Team** (frontmatter field on people + work notes): your team names, e.g. `Backend`, `Platform`, `Mobile`
-- **Cycle** (frontmatter field on review-related notes): `h1-2026`, `h2-2025`, etc.
+- **Cycle** (frontmatter field on review-related notes): `h2-2024`, `h1-2025`, etc.
 - **Person** (frontmatter field on evidence notes): full name of the person
 - **Project**: as needed, e.g. `project/auth-refactor`
 
@@ -239,7 +242,7 @@ Use tags in frontmatter (not inline):
 
 Beyond tags, use these frontmatter properties to enable search and Bases views:
 
-- `cycle: h1-2026` -- find all review material for a cycle
+- `cycle: h2-2024` -- find all review material for a cycle
 - `person: "Jane Smith"` -- find all evidence related to a person
 - `team: Backend` -- find all notes related to a team
 - `status: active` -- find active projects
@@ -308,6 +311,7 @@ Specialized agents in `.claude/agents/` for heavy operations. They run in isolat
 | `slack-archaeologist` | Full Slack reconstruction -- every message, thread, profile | `/incident-capture` |
 | `vault-librarian` | Deep vault maintenance -- orphans, broken links, stale notes | `/vault-audit` |
 | `review-fact-checker` | Verifies every claim in a review draft against vault sources | `/self-review`, `/review-peer` |
+| `vault-migrator` | Classifies, transforms, and migrates content from a source vault | `/vault-upgrade` |
 
 ## Hooks
 

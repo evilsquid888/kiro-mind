@@ -33,7 +33,7 @@ Verify the vault matches the expected layout:
 - `org/teams/` contains only notes tagged `team`
 - `templates/` contains only template files (with `{{placeholders}}`)
 - `thinking/` is clean (no leftover drafts that should have been promoted)
-- Nothing unexpected at vault root (only `Home.md`, `CLAUDE.md`, `.gitignore`)
+- Nothing unexpected at vault root (allowed: `Home.md`, `CLAUDE.md`, `vault-manifest.json`, `CHANGELOG.md`, `CONTRIBUTING.md`, `README.md`, `LICENSE`, `.gitignore` — no user notes)
 
 ### 2. Check Indexes
 
@@ -55,7 +55,7 @@ For each note type, verify required properties:
 
 **Incident notes** (`work/incidents/`):
 - Required: `date`, `quarter`, `description`, `tags: [work-note, incident]`
-- Required for main incident notes: `irp`, `severity`, `role`, `status`
+- Required for main incident notes: `ticket`, `severity`, `role`, `status`
 
 **Person notes** (`org/people/`):
 - Required: `date`, `title`, `description`, `tags: [person]`
