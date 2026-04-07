@@ -215,6 +215,221 @@ Falls back to filesystem when Obsidian isn't running.
 | Global hooks in `settings.json` | Per-agent hooks, shared scripts in `.kiro/scripts/` |
 | `PreCompact` transcript backup | Dropped (no equivalent) |
 
+---
+
+# Implementation Plan
+
+Everything above describes the **target state**. This section is the build plan to get there.
+
+## Verified facts (from Kiro docs research, 2026-04-07)
+
+| Fact | Source |
+|---|---|
+| `/agent swap` preserves conversation context | `docs/cli/chat/context/` + changelog |
+| `subagent` tool: up to 4 parallel, isolated context, inherits invoked agent's tools | `docs/cli/reference/built-in-tools/` |
+| `delegate` tool: async background agents, polled via `/delegate status` | `docs/cli/reference/built-in-tools/` |
+| `.kiro/prompts/` is workspace-scoped and repo-trackable | `docs/cli/chat/manage-prompts/` |
+| Hook triggers: `AgentSpawn`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop` | `docs/cli/hooks/` |
+| Hooks are **per-agent only** (no global hooks) | `docs/cli/hooks/` |
+| Built-in tool names: `read`, `write`, `glob`, `grep`, `shell`, `web_search`, `web_fetch`, `subagent`, `delegate`, `thinking`, `todo`, etc. (no separate `Edit`) | `docs/cli/reference/built-in-tools/` |
+| Skills: `.kiro/skills/<name>/SKILL.md` with YAML frontmatter (`name`, `description`) | `docs/cli/skills/` |
+| Steering: `.kiro/steering/*.md`; `AGENTS.md` always auto-included | `docs/cli/steering/` |
+| Agent config format: JSON at `.kiro/agents/<name>.json`; prompt supports `file://` URIs | `docs/cli/custom-agents/configuration-reference/` |
+| Settings: `~/.kiro/settings/cli.json` | `docs/cli/reference/settings/` |
+| No `PreCompact` equivalent | `docs/cli/hooks/` |
+
+## Open questions (verify in Phase 2 scratch test)
+
+1. **Prompt file format.** `.kiro/prompts/*.md`? JSON? Frontmatter required? → create one via `/prompts create` and inspect.
+2. **Hook inheritance across agents.** Does `kiro_default`'s hook config apply when a custom mode agent is active, or must each agent declare its own? → define a loud hook in `vault` only, swap to `thinker`, observe.
+3. **`subagent` tool scoping.** Does it honor `allowedTools` declared in the invoked subagent's config, or inherit from the caller? → give a subagent narrow tools, invoke it from an agent with broad tools, test.
+4. **Agent chain depth.** Can a subagent itself invoke another subagent? (Probably no — 4-parallel cap implies flat.) → try nested; fall back to orchestration in the mode agent if blocked.
+5. **`AgentSpawn` fires on swap?** Does it fire once per mode swap or only on `kiro-cli` startup? → put `date >> /tmp/spawn.log` in the hook, swap 3 times, count lines.
+
+## Phases
+
+### Phase 1 — Baseline content and docs (est. 1 day)
+
+**Deliverables**
+- New repo `kiro-mind` (fresh git init; copy vault content, not history)
+- Copied folders: `brain/`, `work/`, `perf/`, `org/`, `reference/`, `thinking/`, `templates/`, `bases/`, `.obsidian/`
+- Copied root files: `Home.md`, `vault-manifest.json`, `CHANGELOG.md` (reset to v0.1), `LICENSE`, `.gitignore`
+- `AGENTS.md` — tool-neutral rewrite of `CLAUDE.md` (strip slash command table, strip Skill-tool references, strip `.claude/` paths)
+- `.kiro/steering/product.md` — what this vault is for (purpose, audience, non-goals)
+- `.kiro/steering/tech.md` — Obsidian + QMD + Bases + Kiro stack versions
+- `.kiro/steering/structure.md` — folder layout and note type table
+- `.kiro/steering/linking.md` — graph-first rules, atomicity rule, link conventions
+- `README.md` — the content above this plan section
+- 5 skills ported from `.claude/skills/` to `.kiro/skills/<name>/SKILL.md` (format is nearly identical)
+
+**Exit gate**: `kiro-cli` starts in the repo, loads AGENTS.md + steering without errors, can read/write notes using default agent.
+
+### Phase 2 — Default `vault` agent + hooks + open-question verification (est. 1 day)
+
+**Deliverables**
+- `.kiro/agents/vault.json` — default mode agent config
+- `.kiro/agents/prompts/vault.md` — prompt body loaded via `file://`
+- `.kiro/scripts/session-start.sh` — port from `.claude/scripts/`, adapt to Kiro's AgentSpawn stdin JSON
+- `.kiro/scripts/classify-message.py` — port; adapt stdin format
+- `.kiro/scripts/validate-write.py` — port; matcher becomes `write` (single tool, no `Edit` branch)
+- Hooks wired in `vault.json`: AgentSpawn, UserPromptSubmit, PostToolUse(write), Stop
+- **Scratch tests answering all 5 open questions** — results committed to `thinking/kiro-verification-<date>.md`
+
+**Exit gate**: Session start injects context, capture a test note, validate-write fires, classify-message fires. All 5 open questions have documented answers.
+
+### Phase 3 — Subagents (est. 2 days)
+
+Port 9 subagents from `.claude/agents/*.md` to `.kiro/subagents/*.json`.
+
+**Per subagent:**
+1. Create `.kiro/subagents/<name>.json` with JSON config
+2. Move prompt body to `.kiro/subagents/prompts/<name>.md`, reference via `file://`
+3. Declare narrow `allowedTools` (e.g. `slack-archaeologist` needs `read`, `grep`, MCP Slack tools; not `write`)
+4. Test in isolation from `vault` mode: `Use the <name> subagent to <task>`
+
+**Port order** (easiest → hardest, to build confidence):
+1. `context-loader` (read-only, simple)
+2. `cross-linker` (read + grep)
+3. `brag-spotter` (read + grep)
+4. `vault-librarian` (read + glob + grep)
+5. `people-profiler` (read + write, Slack MCP)
+6. `review-fact-checker` (read + grep)
+7. `review-prep` (read + write, aggregation heavy)
+8. `slack-archaeologist` (complex MCP flow)
+9. `vault-migrator` (read + write, most risk)
+
+**Exit gate**: each subagent invokable from `vault`, returns structured output, doesn't bleed context to main conversation.
+
+### Phase 4 — Mode agents (est. 2 days)
+
+Build 6 additional modes. For each: JSON config + prompt body + hook copies + subagent wiring.
+
+| Mode | Subagents invoked | Notes |
+|---|---|---|
+| `morning` | `context-loader` (optional) | Reads North Star, proposes priorities |
+| `wrapup` | `cross-linker`, `brag-spotter`, `vault-librarian` | Heaviest orchestrator |
+| `reviewer` | `review-prep`, `review-fact-checker` | Handles self + peer + manager reviews |
+| `incident` | `slack-archaeologist`, `people-profiler` | Structured capture flow |
+| `librarian` | `vault-librarian`, `cross-linker`, `vault-migrator` | Maintenance |
+| `thinker` | none | Drafting, writes to `thinking/` |
+
+**Decision per mode**: copy hooks from `vault.json` or omit? Depends on Phase 2 answer to open question #2. If hooks inherit from default, omit. If not, copy the critical ones (`UserPromptSubmit`, `PostToolUse`).
+
+**Exit gate**: every Claude Code slash command has a mode or prompt equivalent; cheat sheet in README is accurate.
+
+### Phase 5 — Lightweight prompts (est. 0.5 day)
+
+Create via `/prompts create`:
+- `dump` — freeform capture, auto-route
+- `humanize` — voice calibration
+- `capture-1on1` — structured 1:1 meeting capture
+
+**Verify**: commit `.kiro/prompts/*`, clone fresh, confirm they're available via `/prompts list`.
+
+### Phase 6 — Dogfood + migration guide + release (est. 1 week calendar, part-time)
+
+- Use kiro-mind exclusively for 5 working days
+- Log friction points in `thinking/kiro-dogfood-<date>.md`
+- Fix top 5 issues
+- Write `docs/migration-from-obsidian-mind.md`: how to move a vault from the Claude Code version, mapping table, gotchas
+- Tag `v0.1.0`, write release notes
+
+## Risks and mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| Hooks don't inherit → 7x duplication in agent configs | Medium | Low | Scripts are shared; only JSON stanzas duplicate. Keep a single `hooks.json` fragment and script the assembly if it gets painful. |
+| `subagent` tool doesn't match Claude Task semantics cleanly | Medium | Medium | Verify in Phase 2. If broken, collapse some subagents into mode-agent prompts. |
+| `.kiro/prompts/` format is JSON-only or not markdown-friendly | Low | Low | Fall back to all-agents, no prompts. Lose 3 commands' ergonomics. |
+| Kiro tool name changes in a future release | Low | Medium | Pin CLI version in `tech.md` steering. |
+| `AgentSpawn` fires only on CLI start, not swap | Medium | Medium | Move session-start injection to `UserPromptSubmit` with a "first message of session" guard. |
+| Context carry-across-swap has hidden gotchas (e.g. tool permissions reset) | Low | High | Phase 2 scratch test question #2. |
+| Scope creep — tempting to "improve" the vault content while porting | High | Medium | Hard rule: Phase 1 is **copy**, not refactor. Vault content changes go in a separate PR post-v0.1. |
+
+## Non-goals for v0.1
+
+- Back-porting improvements to `obsidian-mind` (Claude Code version stays as-is)
+- `PreCompact` equivalent / transcript backup
+- Cross-tool config sync (a change in kiro-mind does **not** automatically propagate to obsidian-mind)
+- Automated test suite for agent configs (manual verification is fine at this stage)
+- Windows support (Linux/macOS only, matches obsidian-mind)
+
+## Sample artifacts
+
+### `.kiro/agents/vault.json` skeleton
+
+```json
+{
+  "description": "Default mode — day-to-day capture, linking, and vault browsing",
+  "prompt": "file://.kiro/agents/prompts/vault.md",
+  "model": "claude-sonnet-4-6",
+  "tools": ["read", "write", "glob", "grep", "shell", "subagent", "thinking", "todo"],
+  "allowedTools": ["read", "glob", "grep", "thinking", "todo"],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "skill://obsidian-markdown",
+    "skill://obsidian-cli",
+    "skill://qmd-search",
+    "skill://frontmatter-validate",
+    "skill://wikilink-check"
+  ],
+  "hooks": {
+    "AgentSpawn": [
+      { "command": "bash .kiro/scripts/session-start.sh", "timeout": 30 }
+    ],
+    "UserPromptSubmit": [
+      { "command": "python3 .kiro/scripts/classify-message.py", "timeout": 15 }
+    ],
+    "PostToolUse": [
+      { "matcher": "write", "command": "python3 .kiro/scripts/validate-write.py", "timeout": 15 }
+    ],
+    "Stop": [
+      { "command": "echo 'Session end checklist: archive? indexes? links?'", "timeout": 5 }
+    ]
+  }
+}
+```
+
+*Field names to verify against the agent config reference during Phase 2 — this is illustrative.*
+
+### `.kiro/subagents/slack-archaeologist.json` skeleton
+
+```json
+{
+  "description": "Deep Slack reconstruction — every message, thread, profile. Invoke for incident timelines and evidence gathering.",
+  "prompt": "file://.kiro/subagents/prompts/slack-archaeologist.md",
+  "model": "claude-sonnet-4-6",
+  "tools": ["read", "grep", "@slack/*"],
+  "allowedTools": ["read", "grep", "@slack/conversations_history", "@slack/users_info"],
+  "resources": [
+    "file://.kiro/steering/structure.md"
+  ]
+}
+```
+
+## Effort summary
+
+| Phase | Est. effort | Calendar |
+|---|---|---|
+| 1. Baseline | 1 day | Day 1 |
+| 2. vault agent + verification | 1 day | Day 2 |
+| 3. Subagents × 9 | 2 days | Days 3–4 |
+| 4. Mode agents × 6 | 2 days | Days 5–6 |
+| 5. Prompts | 0.5 day | Day 7 |
+| 6. Dogfood + release | ~5 working days part-time | Week 2 |
+
+**Minimum viable release**: Phases 1 + 2 + `vault` + 1 subagent + 1 mode. Proves the concept end-to-end. ~2.5 days.
+
+## Decision log
+
+- **2026-04-07**: Chose sibling repo over port, branch, or subfolder. Rationale: ergonomics mismatch is too large for a port; branch/subfolder mixes tool configs and invites drift.
+- **2026-04-07**: Chose mode agents over trying to emulate slash commands. Rationale: `/agent swap` context preservation (verified) makes modes a natural replacement.
+- **2026-04-07**: Kept subagents as real subagents (not skills). Rationale: Kiro has a native `subagent` tool with Claude Task-tool parity.
+- **2026-04-07**: Hand-authored AGENTS.md, not generated. Rationale: low change rate, generation adds a build step and drift risk.
+- **2026-04-07**: Dropped `PreCompact` transcript backup. Rationale: no Kiro trigger; non-critical.
+
+---
+
 ## Status
 
 Early. Designed from research, not yet dogfooded. See `CHANGELOG.md` for release history.
