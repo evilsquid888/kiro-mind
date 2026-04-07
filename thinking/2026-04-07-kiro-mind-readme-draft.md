@@ -326,6 +326,28 @@ Create via `/prompts create`:
 
 **Verify**: commit `.kiro/prompts/*`, clone fresh, confirm they're available via `/prompts list`.
 
+### Phase 5.5 — Integration test (est. 0.5 day)
+
+**Goal**: End-to-end validation that a fresh clone works in a fresh Kiro CLI session.
+
+**Deliverables**
+- `test/integration/test-vault/` — minimal disposable vault containing the `.kiro/` tree, stub steering files, 2 mode agents (`vault`, `wrapup`), 2 subagents (`context-loader`, `cross-linker`), 1 prompt, 1 skill, and a handful of fake notes in `brain/`, `work/`, `org/`
+- `test/integration/run.sh` — script that:
+  1. Copies `test-vault/` to a tmpdir
+  2. Runs `kiro-cli` in non-interactive mode (if supported) or scripted via `expect`/heredoc
+  3. Asserts `AgentSpawn` hook fired (checks `/tmp/kiro-integration.log` for the expected marker)
+  4. Submits a test prompt; asserts `UserPromptSubmit` hook fired
+  5. Writes a test note; asserts `PostToolUse` hook fired and validation passed
+  6. Swaps to `wrapup`; asserts context preserved across swap
+  7. Invokes the `context-loader` subagent; asserts it returned structured output
+  8. Exits cleanly
+- `test/integration/README.md` — how to run locally and what each assertion proves
+- CI step (GitHub Actions) that runs the integration test on every PR to the branch — if Kiro CLI can be installed headless in CI. If not, document as "run locally before release" and track as a manual checklist item.
+
+**Exit gate**: integration test passes on a clean machine with no state from prior runs.
+
+**Self-hosting note**: The kiro-mind build should itself be done **using Kiro CLI**. Dogfooding the tool while building the vault that wraps it catches ergonomic issues you'd otherwise ship. The `thinker` and `wrapup` modes should be usable end-to-end before Phase 6 starts.
+
 ### Phase 6 — Dogfood + migration guide + release (est. 1 week calendar, part-time)
 
 - Use kiro-mind exclusively for 5 working days
@@ -416,6 +438,7 @@ Create via `/prompts create`:
 | 3. Subagents × 9 | 2 days | Days 3–4 |
 | 4. Mode agents × 6 | 2 days | Days 5–6 |
 | 5. Prompts | 0.5 day | Day 7 |
+| 5.5. Integration test | 0.5 day | Day 7 |
 | 6. Dogfood + release | ~5 working days part-time | Week 2 |
 
 **Minimum viable release**: Phases 1 + 2 + `vault` + 1 subagent + 1 mode. Proves the concept end-to-end. ~2.5 days.
