@@ -427,6 +427,14 @@ Create via `/prompts create`:
 - **2026-04-07**: Kept subagents as real subagents (not skills). Rationale: Kiro has a native `subagent` tool with Claude Task-tool parity.
 - **2026-04-07**: Hand-authored AGENTS.md, not generated. Rationale: low change rate, generation adds a build step and drift risk.
 - **2026-04-07**: Dropped `PreCompact` transcript backup. Rationale: no Kiro trigger; non-critical.
+- **2026-04-07**: Lives as unmerged branch `kiro-mind-draft` in obsidian-mind repo, not a sibling repo. `.kiro/` is additive and does not touch `.claude/`. Vault content (`brain/`, `work/`, etc.) is shared — no copy.
+- **2026-04-07**: License MIT (matches obsidian-mind). Starting version v0.1.0.
+- **2026-04-07**: Models — use the same Claude models as obsidian-mind (`claude-sonnet-4-6`, `claude-opus-4-6`). Pending verification that Kiro CLI routes to Anthropic directly and not Bedrock-only.
+- **2026-04-07**: Hook script languages unchanged — bash + python3, same as obsidian-mind.
+- **2026-04-07**: MCP server configuration is user's responsibility — no shipped `.kiro/mcp.json` template.
+- **2026-04-07**: Vault content treated as template stubs shared with `main` (option 7c). Branch references the existing stubs, no fork of personal data.
+- **2026-04-07**: Maintenance posture: best-effort, no promises. README notes "experimental, may lag Kiro CLI releases".
+- **2026-04-07**: Risky subagents (`slack-archaeologist`, `vault-migrator`) ship in v0.1 with `experimental: true` marker and README warning "use at your own risk, not fully tested against Kiro MCP semantics". Do not block v0.1 on them working perfectly.
 
 ---
 
