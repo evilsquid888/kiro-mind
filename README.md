@@ -367,6 +367,22 @@ Your old vault is **never modified**. Use `--dry-run` to preview the plan withou
 
 ---
 
+## 🧪 Using with Kiro CLI (experimental)
+
+A from-scratch **Kiro CLI**-native port is in progress on the [`kiro-mind-draft`](https://github.com/evilsquid888/obsidian-mind/tree/kiro-mind-draft) branch. It keeps the same vault content and philosophy but redesigns the agent layer around Kiro's primitives:
+
+- **Mode agents** instead of slash commands (swap via `/agent swap <mode>` — context is preserved)
+- **Native `subagent` tool** for heavy lifting (isolated context, up to 4 parallel)
+- **`.kiro/` config tree** alongside `.claude/` (both can coexist in the same repo)
+- **`AGENTS.md`** as the canonical tool-neutral rulebook
+- **`.kiro/steering/`** for scoped context files (`product.md`, `tech.md`, `structure.md`, `linking.md`)
+
+**Status**: design + plan complete, implementation not started. See the [plan doc](https://github.com/evilsquid888/obsidian-mind/blob/kiro-mind-draft/thinking/2026-04-07-kiro-mind-readme-draft.md) and [tracking issue #1](https://github.com/evilsquid888/obsidian-mind/issues/1) for details.
+
+**Expect**: best-effort, no promises on parity. Claude Code remains the primary target on `main`.
+
+---
+
 ## 🙏 Design Influences
 
 - [kepano/obsidian-skills](https://github.com/kepano/obsidian-skills) — Official Obsidian agent skills
