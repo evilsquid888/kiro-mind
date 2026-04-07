@@ -362,7 +362,7 @@ Create via `/prompts create`:
 {
   "description": "Default mode — day-to-day capture, linking, and vault browsing",
   "prompt": "file://.kiro/agents/prompts/vault.md",
-  "model": "claude-sonnet-4-6",
+  "model": "claude-sonnet-4.6",
   "tools": ["read", "write", "glob", "grep", "shell", "subagent", "thinking", "todo"],
   "allowedTools": ["read", "glob", "grep", "thinking", "todo"],
   "resources": [
@@ -398,7 +398,7 @@ Create via `/prompts create`:
 {
   "description": "Deep Slack reconstruction — every message, thread, profile. Invoke for incident timelines and evidence gathering.",
   "prompt": "file://.kiro/subagents/prompts/slack-archaeologist.md",
-  "model": "claude-sonnet-4-6",
+  "model": "claude-sonnet-4.6",
   "tools": ["read", "grep", "@slack/*"],
   "allowedTools": ["read", "grep", "@slack/conversations_history", "@slack/users_info"],
   "resources": [
@@ -429,7 +429,7 @@ Create via `/prompts create`:
 - **2026-04-07**: Dropped `PreCompact` transcript backup. Rationale: no Kiro trigger; non-critical.
 - **2026-04-07**: Lives as unmerged branch `kiro-mind-draft` in obsidian-mind repo, not a sibling repo. `.kiro/` is additive and does not touch `.claude/`. Vault content (`brain/`, `work/`, etc.) is shared — no copy.
 - **2026-04-07**: License MIT (matches obsidian-mind). Starting version v0.1.0.
-- **2026-04-07**: Models — use the same Claude models as obsidian-mind (`claude-sonnet-4-6`, `claude-opus-4-6`). Pending verification that Kiro CLI routes to Anthropic directly and not Bedrock-only.
+- **2026-04-07**: Models — Kiro-native IDs `claude-sonnet-4.6` and `claude-opus-4.6` (dots, not dashes — differs from Claude Code's `claude-sonnet-4-6`). Kiro also offers `auto` routing, `claude-haiku-4.5`, and open-weight models (`minimax-m2.5`, `glm-5`, `deepseek-3.2`). Verified via kiro.dev/docs/cli/models.
 - **2026-04-07**: Hook script languages unchanged — bash + python3, same as obsidian-mind.
 - **2026-04-07**: MCP server configuration is user's responsibility — no shipped `.kiro/mcp.json` template.
 - **2026-04-07**: Vault content treated as template stubs shared with `main` (option 7c). Branch references the existing stubs, no fork of personal data.
