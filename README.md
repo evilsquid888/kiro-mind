@@ -257,6 +257,36 @@ bases/                  Dynamic database views
 
 ---
 
+## 🧪 Testing
+
+Repeatable integration test suite in `test/integration/`. No manual testing needed.
+
+```bash
+# Quick — validates JSON configs, hook scripts, file structure (no kiro-cli needed)
+bash test/integration/run.sh --quick     # 107 checks, ~2 seconds
+
+# Full — adds headless kiro-cli agent tests (requires authenticated kiro-cli)
+bash test/integration/run.sh --full      # 112 checks, ~3 minutes
+```
+
+### What's tested
+
+| Suite | Checks | What |
+|-------|--------|------|
+| `test-json.sh` | 87 | All 16 JSON configs valid, required fields present, hooks assembled on mode agents, no hooks on subagents, all `file://` prompt refs resolve, no keyboard shortcut conflicts, all files exist |
+| `test-hooks.sh` | 20 | `session-start.sh` output structure, `classify-message.py` detects 7 signal types + CJK + empty/neutral, `validate-write.py` catches 3 error types + skips 2 exclusions + passes valid notes |
+| Headless agents | 5 | vault/morning/reviewer/wrapup agents respond, context-loader subagent invocation works |
+
+### Running after changes
+
+After modifying agent configs or hook scripts:
+```bash
+bash .kiro/scripts/build-agents.sh       # re-assemble hooks into agent configs
+bash test/integration/run.sh --quick     # validate everything
+```
+
+---
+
 ## 🚦 Status & Maturity
 
 This is **v0.1.0 — early and experimental**. The vault content is template stubs (no real user data). Fill in `brain/North Star.md` and start using it to populate the vault.
