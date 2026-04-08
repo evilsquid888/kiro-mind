@@ -106,6 +106,8 @@ qmd update && qmd embed
 - Python 3.8+ (for hook scripts)
 - Git (for version history)
 - [QMD](https://github.com/tobi/qmd) (optional, for semantic search)
+- [GitHub CLI](https://cli.github.com/) (optional, for `peer-scan` PR scanning in reviewer mode)
+- Slack MCP server (optional, user-configured — required for `incident` mode and `slack-archaeologist`/`people-profiler` subagents)
 
 ---
 
@@ -252,6 +254,44 @@ bases/                  Dynamic database views
 
 > [!IMPORTANT]
 > `AGENTS.md` is the canonical rulebook. When you change conventions, update it — Kiro reads it every session.
+
+---
+
+## 🚦 Status & Maturity
+
+This is **v0.1.0 — early and experimental**. The vault content is template stubs (no real user data). Fill in `brain/North Star.md` and start using it to populate the vault.
+
+### What's tested
+
+| Feature | Status |
+|---------|--------|
+| Vault agent — hooks fire, reads/writes notes | ✅ Tested headless |
+| Context-loader subagent — invoked from vault | ✅ Tested headless |
+| Reviewer agent — loads, lists workflows | ✅ Tested headless |
+| All 16 agent JSON configs — valid, load cleanly | ✅ `kiro-cli agent list` |
+| Hook scripts — session-start, classify, validate | ✅ Fire correctly |
+| Keyboard shortcuts — no conflicts | ✅ Verified |
+
+### What's not tested end-to-end
+
+| Feature | Blocker |
+|---------|---------|
+| `incident` mode, `slack-archaeologist`, `people-profiler` | Requires Slack MCP server (user-configured) |
+| `vault-migrator` (upgrade workflow) | Needs a source vault to migrate from |
+| `peer-scan` in reviewer mode | Requires `gh` CLI authenticated to a GitHub org |
+| `wrapup`, `librarian`, `thinker` modes | Created and load, but workflows not exercised |
+| `brag-spotter`, `cross-linker`, `vault-librarian` subagents | Created, not invoked in testing |
+| 4 prompts (`dump`, `humanize`, `capture-1on1`, `project-archive`) | Created, not invoked in testing |
+| Weekly synthesis (`wrapup` + "weekly") | Not exercised |
+
+### Optional dependencies — graceful degradation
+
+| Dependency | If missing |
+|------------|-----------|
+| **QMD** | Semantic search unavailable. Agents fall back to `grep`/`glob`. `session-start.sh` skips `qmd update` silently. |
+| **Obsidian CLI** | Vault-aware commands unavailable. Agents fall back to filesystem reads. `session-start.sh` skips `obsidian tasks` silently. |
+| **Slack MCP** | `incident` mode, `slack-archaeologist`, and `people-profiler` won't work. Other modes unaffected. |
+| **GitHub CLI** | `peer-scan` workflow in reviewer mode won't work. Other review workflows unaffected. |
 
 ---
 
