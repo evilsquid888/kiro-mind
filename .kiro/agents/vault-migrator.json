@@ -1,0 +1,21 @@
+{
+  "name": "vault-migrator",
+  "description": "Classify, transform, and migrate content from a source vault",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "prompt": "file://prompts/vault-migrator.md"
+}

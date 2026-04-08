@@ -1,0 +1,58 @@
+{
+  "name": "librarian",
+  "description": "Vault maintenance and content migration",
+  "keyboardShortcut": "ctrl+shift+l",
+  "welcomeMessage": "Librarian mode \u2014 audit or upgrade?",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/**/*.md",
+    "skill://../skills/**/SKILL.md"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep",
+    "use_subagent",
+    "thinking",
+    "todo_list"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep",
+    "thinking",
+    "todo_list"
+  ],
+  "prompt": "file://prompts/librarian.md",
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start.sh",
+        "description": "Inject vault context"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "python3 .kiro/scripts/validate-write.py",
+        "description": "Validate vault notes"
+      }
+    ]
+  },
+  "toolsSettings": {
+    "subagent": {
+      "availableAgents": [
+        "vault-librarian",
+        "cross-linker",
+        "vault-migrator",
+        "context-loader"
+      ],
+      "trustedAgents": [
+        "vault-librarian",
+        "cross-linker"
+      ]
+    }
+  }
+}

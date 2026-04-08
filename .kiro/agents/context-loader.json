@@ -1,0 +1,20 @@
+{
+  "name": "context-loader",
+  "description": "Load all vault context about a person, project, incident, team, or concept",
+  "tools": [
+    "fs_read",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "prompt": "file://prompts/context-loader.md"
+}

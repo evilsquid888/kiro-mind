@@ -1,0 +1,43 @@
+{
+  "name": "morning",
+  "description": "Morning standup \u2014 load context, review yesterday, propose priorities",
+  "keyboardShortcut": "ctrl+shift+m",
+  "welcomeMessage": "Morning standup \u2014 loading your context...",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/**/*.md",
+    "skill://../skills/**/SKILL.md"
+  ],
+  "tools": [
+    "fs_read",
+    "execute_bash",
+    "glob",
+    "grep",
+    "thinking"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep",
+    "thinking"
+  ],
+  "prompt": "file://prompts/morning.md",
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start.sh",
+        "description": "Inject vault context"
+      }
+    ]
+  },
+  "toolsSettings": {
+    "subagent": {
+      "availableAgents": [
+        "context-loader"
+      ],
+      "trustedAgents": [
+        "context-loader"
+      ]
+    }
+  }
+}

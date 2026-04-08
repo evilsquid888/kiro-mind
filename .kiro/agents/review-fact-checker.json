@@ -1,0 +1,20 @@
+{
+  "name": "review-fact-checker",
+  "description": "Verify every factual claim in a review draft against vault sources",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "tools": [
+    "fs_read",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "prompt": "file://prompts/review-fact-checker.md"
+}

@@ -1,0 +1,21 @@
+{
+  "name": "review-prep",
+  "description": "Aggregate performance evidence for a review period",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "prompt": "file://prompts/review-prep.md"
+}

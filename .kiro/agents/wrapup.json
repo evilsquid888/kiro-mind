@@ -1,0 +1,56 @@
+{
+  "name": "wrapup",
+  "description": "Session wrapup and weekly synthesis",
+  "keyboardShortcut": "ctrl+shift+w",
+  "welcomeMessage": "Wrapup mode \u2014 reviewing session. Say 'weekly' for cross-session synthesis.",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/**/*.md",
+    "skill://../skills/**/SKILL.md"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep",
+    "use_subagent",
+    "thinking",
+    "todo_list"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep",
+    "thinking",
+    "todo_list"
+  ],
+  "prompt": "file://prompts/wrapup.md",
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start.sh",
+        "description": "Inject vault context"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "python3 .kiro/scripts/validate-write.py",
+        "description": "Validate vault notes"
+      }
+    ]
+  },
+  "toolsSettings": {
+    "subagent": {
+      "availableAgents": [
+        "brag-spotter",
+        "cross-linker",
+        "vault-librarian"
+      ],
+      "trustedAgents": [
+        "brag-spotter"
+      ]
+    }
+  }
+}

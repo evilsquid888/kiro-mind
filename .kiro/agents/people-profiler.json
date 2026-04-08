@@ -1,0 +1,21 @@
+{
+  "name": "people-profiler",
+  "description": "Bulk create/update person notes from Slack profiles",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "prompt": "file://prompts/people-profiler.md"
+}

@@ -1,0 +1,76 @@
+{
+  "name": "vault",
+  "description": "Default mode \u2014 day-to-day capture, linking, and vault browsing",
+  "prompt": "file://prompts/vault.md",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep",
+    "use_subagent",
+    "thinking",
+    "todo_list",
+    "web_search",
+    "web_fetch"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep",
+    "thinking",
+    "todo_list"
+  ],
+  "toolsSettings": {
+    "subagent": {
+      "availableAgents": [
+        "brag-spotter",
+        "context-loader",
+        "cross-linker",
+        "people-profiler",
+        "review-prep",
+        "review-fact-checker",
+        "slack-archaeologist",
+        "vault-librarian",
+        "vault-migrator"
+      ],
+      "trustedAgents": [
+        "context-loader"
+      ]
+    }
+  },
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/**/*.md",
+    "skill://../skills/**/SKILL.md"
+  ],
+  "keyboardShortcut": "ctrl+shift+v",
+  "welcomeMessage": "Vault mode \u2014 capture, link, browse. Say 'wrap up' when done.",
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start.sh",
+        "description": "Inject vault context"
+      }
+    ],
+    "userPromptSubmit": [
+      {
+        "command": "python3 .kiro/scripts/classify-message.py",
+        "description": "Classify content"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "python3 .kiro/scripts/validate-write.py",
+        "description": "Validate vault notes"
+      }
+    ],
+    "stop": [
+      {
+        "command": "echo 'Session checklist: archive completed projects? update indexes? check links?'",
+        "description": "End-of-turn reminder"
+      }
+    ]
+  }
+}

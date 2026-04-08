@@ -1,0 +1,46 @@
+{
+  "name": "thinker",
+  "description": "Drafting and analysis in thinking/ scratchpad",
+  "keyboardShortcut": "ctrl+shift+t",
+  "welcomeMessage": "Thinker mode \u2014 drafting in thinking/. Promote findings when ready.",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/**/*.md",
+    "skill://../skills/**/SKILL.md"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep",
+    "thinking",
+    "todo_list",
+    "web_search",
+    "web_fetch"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "fs_write",
+    "glob",
+    "grep",
+    "thinking",
+    "todo_list"
+  ],
+  "prompt": "file://prompts/thinker.md",
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "bash .kiro/scripts/session-start.sh",
+        "description": "Inject vault context"
+      }
+    ],
+    "postToolUse": [
+      {
+        "matcher": "write",
+        "command": "python3 .kiro/scripts/validate-write.py",
+        "description": "Validate vault notes"
+      }
+    ]
+  }
+}

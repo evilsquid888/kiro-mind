@@ -1,0 +1,20 @@
+{
+  "name": "brag-spotter",
+  "description": "Find uncaptured wins and competency gaps",
+  "tools": [
+    "fs_read",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "prompt": "file://prompts/brag-spotter.md"
+}

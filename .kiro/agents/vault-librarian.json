@@ -1,0 +1,20 @@
+{
+  "name": "vault-librarian",
+  "description": "Deep vault maintenance \u2014 orphans, broken links, frontmatter, stale notes",
+  "tools": [
+    "fs_read",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "prompt": "file://prompts/vault-librarian.md"
+}

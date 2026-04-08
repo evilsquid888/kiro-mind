@@ -1,0 +1,21 @@
+{
+  "name": "cross-linker",
+  "description": "Find missing wikilinks, orphans, and broken backlinks",
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "prompt": "file://prompts/cross-linker.md"
+}

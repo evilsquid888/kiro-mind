@@ -1,0 +1,21 @@
+{
+  "name": "slack-archaeologist",
+  "description": "Deep Slack reconstruction \u2014 every message, thread, profile",
+  "resources": [
+    "file://../../AGENTS.md",
+    "file://../steering/structure.md"
+  ],
+  "tools": [
+    "fs_read",
+    "fs_write",
+    "execute_bash",
+    "glob",
+    "grep"
+  ],
+  "allowedTools": [
+    "fs_read",
+    "glob",
+    "grep"
+  ],
+  "prompt": "file://prompts/slack-archaeologist.md"
+}

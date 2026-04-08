@@ -1,0 +1,30 @@
+{
+  "_comment": "Shared hook stanzas. build-agents.sh merges these into agent configs.",
+  "full": {
+    "agentSpawn": [
+      { "command": "bash .kiro/scripts/session-start.sh", "description": "Inject vault context" }
+    ],
+    "userPromptSubmit": [
+      { "command": "python3 .kiro/scripts/classify-message.py", "description": "Classify content" }
+    ],
+    "postToolUse": [
+      { "matcher": "write", "command": "python3 .kiro/scripts/validate-write.py", "description": "Validate vault notes" }
+    ],
+    "stop": [
+      { "command": "echo 'Session checklist: archive completed projects? update indexes? check links?'", "description": "End-of-turn reminder" }
+    ]
+  },
+  "spawn-and-validate": {
+    "agentSpawn": [
+      { "command": "bash .kiro/scripts/session-start.sh", "description": "Inject vault context" }
+    ],
+    "postToolUse": [
+      { "matcher": "write", "command": "python3 .kiro/scripts/validate-write.py", "description": "Validate vault notes" }
+    ]
+  },
+  "spawn-only": {
+    "agentSpawn": [
+      { "command": "bash .kiro/scripts/session-start.sh", "description": "Inject vault context" }
+    ]
+  }
+}
