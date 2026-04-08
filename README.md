@@ -271,6 +271,19 @@ This is **v0.1.0 — early and experimental**. The vault content is template stu
 | All 16 agent JSON configs — valid, load cleanly | ✅ `kiro-cli agent list` |
 | Hook scripts — session-start, classify, validate | ✅ Fire correctly |
 | Keyboard shortcuts — no conflicts | ✅ Verified |
+| QMD semantic search — keyword, semantic, hybrid | ✅ All 3 modes work (29 docs, 111 chunks) |
+| `dump` prompt — freeform capture and routing | ✅ Created person note, 1:1, decision record |
+| `humanize` prompt — voice calibration | ✅ Loaded voice samples, edited North Star in-place |
+| `capture-1on1` prompt — structured 1:1 capture | ✅ Created 1:1 note + person note + updated indexes |
+| `wrapup` mode — session review | ✅ Reviewed notes, checked indexes |
+| `wrapup` mode — weekly synthesis | ✅ Ran git log, produced weekly summary |
+| `thinker` mode — drafting in thinking/ | ✅ Created scratchpad note |
+| `librarian` mode — vault audit | ✅ Ran orphan detection, frontmatter checks, link scans |
+| `brag-spotter` subagent | ✅ Found uncaptured wins from git log |
+| `cross-linker` subagent | ✅ Scanned for missing wikilinks, produced report |
+| `vault-librarian` subagent | ✅ Checked vault health, reported orphans |
+| `review-prep` subagent | ✅ Scanned vault, correctly reported empty stubs |
+| `review-fact-checker` subagent | ✅ Read Brag Doc, correctly reported no claims |
 
 ### What's not tested end-to-end
 
@@ -279,10 +292,7 @@ This is **v0.1.0 — early and experimental**. The vault content is template stu
 | `incident` mode, `slack-archaeologist`, `people-profiler` | Requires Slack MCP server (user-configured) |
 | `vault-migrator` (upgrade workflow) | Needs a source vault to migrate from |
 | `peer-scan` in reviewer mode | Requires `gh` CLI authenticated to a GitHub org |
-| `wrapup`, `librarian`, `thinker` modes | Created and load, but workflows not exercised |
-| `brag-spotter`, `cross-linker`, `vault-librarian` subagents | Created, not invoked in testing |
-| 4 prompts (`dump`, `humanize`, `capture-1on1`, `project-archive`) | Created, not invoked in testing |
-| Weekly synthesis (`wrapup` + "weekly") | Not exercised |
+| `project-archive` prompt | No active projects to archive (template stubs) |
 
 ### Optional dependencies — graceful degradation
 
