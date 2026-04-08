@@ -369,15 +369,168 @@ Your old vault is **never modified**. Use `--dry-run` to preview the plan withou
 
 ## 🧪 Using with Kiro CLI (experimental)
 
-A from-scratch **Kiro CLI**-native port is in progress on the [`kiro-mind-draft`](https://github.com/evilsquid888/obsidian-mind/tree/kiro-mind-draft) branch. It keeps the same vault content and philosophy but redesigns the agent layer around Kiro's primitives:
+A from-scratch **Kiro CLI**-native port lives on the [`kiro-mind-draft`](https://github.com/evilsquid888/obsidian-mind/tree/kiro-mind-draft) branch. Same vault content and philosophy, redesigned around Kiro's primitives. The `.kiro/` tree coexists alongside `.claude/` — both work in the same repo.
 
-- **Mode agents** instead of slash commands (swap via `/agent swap <mode>` — context is preserved)
-- **Native `subagent` tool** for heavy lifting (isolated context, up to 4 parallel)
-- **`.kiro/` config tree** alongside `.claude/` (both can coexist in the same repo)
-- **`AGENTS.md`** as the canonical tool-neutral rulebook
-- **`.kiro/steering/`** for scoped context files (`product.md`, `tech.md`, `structure.md`, `linking.md`)
+**Status**: Phase 1 complete (58 files, 3,730 lines). Headless-tested. Dogfooding in progress.
 
-**Status**: design + plan complete, implementation not started. See the [plan doc](https://github.com/evilsquid888/obsidian-mind/blob/kiro-mind-draft/thinking/2026-04-07-kiro-mind-readme-draft.md) and [tracking issue #1](https://github.com/evilsquid888/obsidian-mind/issues/1) for details.
+### Quick Start (Kiro)
+
+```bash
+git clone https://github.com/evilsquid888/obsidian-mind.git ~/vault
+cd ~/vault && git checkout kiro-mind-draft
+kiro-cli chat --agent vault          # starts in vault mode
+```
+
+### Architecture: Modes, Not Commands
+
+Where Claude Code uses 15 slash commands, Kiro uses **7 mode agents** you swap between. Conversation context carries across swaps, so chaining is natural.
+
+```bash
+kiro-cli                              # starts in vault mode (default)
+/agent swap morning                   # standup: load context, set priorities
+/agent swap vault                     # back to day-to-day capture
+/agent swap wrapup                    # end of session: verify, archive, brag-spot
+```
+
+| Mode | Shortcut | Purpose | Subagents |
+|------|----------|---------|-----------|
+| `vault` | `Ctrl+Shift+V` | Default — capture, link, browse | All 9 available |
+| `morning` | `Ctrl+Shift+M` | Standup — read-only context load, priorities | context-loader |
+| `wrapup` | `Ctrl+Shift+W` | Session review or weekly synthesis | brag-spotter, cross-linker, vault-librarian |
+| `reviewer` | `Ctrl+Shift+R` | Self-review, peer review, review briefs, PR scanning | review-prep, review-fact-checker, brag-spotter |
+| `incident` | `Ctrl+Shift+I` | Incident capture from Slack | slack-archaeologist, people-profiler |
+| `librarian` | `Ctrl+Shift+L` | Vault audit and content migration | vault-librarian, cross-linker, vault-migrator |
+| `thinker` | `Ctrl+Shift+T` | Drafting in thinking/ scratchpad | None (solo) |
+
+### Lightweight Prompts
+
+For quick actions that don't need a mode switch:
+
+```bash
+/prompts get dump Just had a 1:1 with Sarah...     # auto-routes to correct notes
+/prompts get humanize work/active/Auth-Refactor.md  # voice-calibrate a draft
+/prompts get capture-1on1 Sarah                     # structured 1:1 capture
+/prompts get project-archive Auth-Refactor           # git mv + index updates
+```
+
+### 9 Subagents
+
+Same subagents as Claude Code, invoked via Kiro's native `subagent` tool (isolated context, up to 4 in parallel). Each mode agent declares which subagents it can access via `availableAgents`/`trustedAgents` scoping.
+
+| Subagent | Purpose | Primary mode |
+|----------|---------|-------------|
+| `brag-spotter` | Uncaptured wins and competency gaps | wrapup |
+| `context-loader` | Load all vault context about a topic | morning, vault |
+| `cross-linker` | Missing wikilinks, orphans, broken backlinks | wrapup, librarian |
+| `people-profiler` | Bulk create/update person notes from Slack | incident |
+| `review-prep` | Aggregate performance evidence for a period | reviewer |
+| `review-fact-checker` | Verify claims in review drafts against vault | reviewer |
+| `slack-archaeologist` | Full Slack reconstruction — messages, threads, profiles | incident |
+| `vault-librarian` | Deep maintenance — orphans, links, frontmatter, stale notes | librarian |
+| `vault-migrator` | Classify, transform, migrate content from another vault | librarian |
+
+### Hooks (per-agent)
+
+Kiro hooks are per-agent (no global hooks). A shared `_hooks-common.json` template + `build-agents.sh` assembly script keeps 7 mode agents in sync without duplication drift.
+
+| Hook | Trigger | Script | What |
+|------|---------|--------|------|
+| `agentSpawn` | Mode activates (including swap) | `session-start.sh` | Inject North Star, git log, tasks, file listing |
+| `userPromptSubmit` | User sends message | `classify-message.py` | Classify content → routing hints (decision, incident, win, 1:1, person) |
+| `postToolUse` | After writing `.md` | `validate-write.py` | Validate frontmatter, check wikilinks, verify folder |
+| `stop` | Assistant finishes | inline | Session checklist reminder |
+
+### AGENTS.md + Steering
+
+`AGENTS.md` at the repo root is the **tool-neutral rulebook** — vault conventions that work with any agentic tool. Kiro-specific wiring lives in `.kiro/`:
+
+| File | Purpose |
+|------|---------|
+| `AGENTS.md` | Canonical rules: folder structure, note types, frontmatter, linking, indexes, session workflow |
+| `.kiro/steering/product.md` | What this vault is for, audience, non-goals |
+| `.kiro/steering/tech.md` | Stack versions, model pinning, compatibility |
+| `.kiro/steering/structure.md` | Folder layout, note types, naming conventions |
+| `.kiro/steering/linking.md` | Graph-first rules, atomicity, when-to-link matrix |
+
+### 5 Skills
+
+Auto-loaded by description matching — you don't invoke them explicitly:
+
+- `obsidian-markdown` — wikilinks, embeds, callouts, properties
+- `obsidian-cli` — vault-aware CLI commands when Obsidian is running
+- `qmd-search` — semantic search across the vault via QMD
+- `frontmatter-validate` — YAML frontmatter schema checks
+- `wikilink-check` — broken/missing link detection
+
+### Claude Code ↔ Kiro Mapping
+
+Every Claude Code command has a Kiro equivalent:
+
+| Claude Code | Kiro CLI |
+|-------------|----------|
+| `/standup` | `/agent swap morning` |
+| `/dump <text>` | `/prompts get dump <text>` |
+| `/wrap-up` | `/agent swap wrapup` |
+| `/weekly` | `/agent swap wrapup` + say "weekly" |
+| `/humanize <file>` | `/prompts get humanize <file>` |
+| `/capture-1on1 <person>` | `/prompts get capture-1on1 <person>` |
+| `/incident-capture <urls>` | `/agent swap incident` + paste URLs |
+| `/review-brief <audience>` | `/agent swap reviewer` + "review brief" |
+| `/self-review` | `/agent swap reviewer` + "self-review" |
+| `/review-peer <name>` | `/agent swap reviewer` + "peer review" |
+| `/peer-scan <name> <user> <repo>` | `/agent swap reviewer` + "peer-scan" |
+| `/vault-audit` | `/agent swap librarian` + "audit" |
+| `/vault-upgrade <path>` | `/agent swap librarian` + "upgrade" |
+| `/project-archive <name>` | `/prompts get project-archive <name>` |
+| `/slack-scan <target>` | "Use slack-archaeologist to scan..." (any mode) |
+
+### `.kiro/` File Tree
+
+```
+.kiro/
+├── agents/                 7 mode agents + 9 subagents (JSON configs)
+│   └── prompts/            16 prompt bodies (referenced via file://)
+├── prompts/                4 lightweight prompts (dump, humanize, capture-1on1, project-archive)
+├── scripts/                Hook scripts + assembly tooling
+│   ├── session-start.sh    agentSpawn — inject vault context
+│   ├── classify-message.py userPromptSubmit — content classification
+│   ├── validate-write.py   postToolUse — frontmatter/link validation
+│   ├── charcount.sh        Character count utility for review limits
+│   ├── _hooks-common.json  Shared hook stanzas template
+│   └── build-agents.sh     Assembles hooks into agent configs
+├── skills/                 5 auto-loaded skills
+│   ├── obsidian-markdown/  Obsidian-flavored markdown
+│   ├── obsidian-cli/       Obsidian CLI commands
+│   ├── qmd-search/         QMD semantic search
+│   ├── frontmatter-validate/ Frontmatter schema checks
+│   └── wikilink-check/     Broken link detection
+└── steering/               4 scoped context files
+    ├── product.md          Purpose, audience, non-goals
+    ├── tech.md             Stack, model pinning, compatibility
+    ├── structure.md        Folder layout, note types
+    └── linking.md          Graph-first rules, link conventions
+```
+
+### Verified Behaviors
+
+These were empirically tested against Kiro CLI (see [`thinking/kiro-verification-2026-04-08.md`](thinking/kiro-verification-2026-04-08.md)):
+
+- Prompts are plain `.md` files — no frontmatter needed, support `${1}`–`${10}` positional args
+- Hooks are per-agent only — no inheritance across `/agent swap`
+- Subagents honor their own `allowedTools`, not the caller's — tool isolation works
+- Nested subagents are not supported — orchestration must happen in the mode agent
+- `agentSpawn` fires on every agent activation, including `/agent swap`
+
+### Differences from Claude Code
+
+| | Claude Code (`main`) | Kiro CLI (`kiro-mind-draft`) |
+|---|---|---|
+| Commands | 15 slash commands | 7 mode agents + 4 prompts |
+| Subagents | 9 via Task tool | 9 via `subagent` tool (same shape) |
+| Config | `.claude/commands/`, `.claude/agents/` | `.kiro/agents/`, `.kiro/prompts/` |
+| Rulebook | `CLAUDE.md` (monolith) | `AGENTS.md` (tool-neutral) + 4 steering files |
+| Hooks | Global in `settings.json` | Per-agent, shared scripts + assembly |
+| Context backup | `PreCompact` transcript backup | Dropped (no Kiro equivalent) |
 
 **Expect**: best-effort, no promises on parity. Claude Code remains the primary target on `main`.
 
